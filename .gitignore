@@ -12,7 +12,7 @@ dist
 dist-ssr
 coverage
 *.local
-.agent/tmp/
+tmp/
 .lsp/.cache/
 .clj-kondo/.cache/
 Ficha_Cadastral_Completa_*.pdf

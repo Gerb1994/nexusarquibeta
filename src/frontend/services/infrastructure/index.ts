@@ -4,8 +4,6 @@ export * from './importExport';
 export * from './loadData';
 export * from './migrations';
 export * from './seedAgendaEvents';
-export * from './seedData';
 export * from './seedProspects';
 export * from './seedReminders';
-export * from './storageQuotaService';
 export * from './uiPreferenceService';

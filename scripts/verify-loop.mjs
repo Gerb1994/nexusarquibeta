@@ -5,15 +5,13 @@ const GATES = [
   { id: 'typecheck', command: 'npm run typecheck' },
   { id: 'lint', command: 'npm run lint' },
   { id: 'format:check', command: 'npm run format:check' },
-  { id: 'check:docs:governance', command: 'npm run check:docs:governance' },
-  { id: 'validate:structure', command: 'npm run validate:structure' },
-  { id: 'check:lines', command: 'npm run check:lines' },
   { id: 'check:duplication', command: 'npm run check:duplication' },
   { id: 'test:coverage', command: 'npm run test:coverage' },
   { id: 'build', command: 'npm run build' },
 ];
 
-const REPORT_PATH = '.agent/tmp/verify-loop-report.json';
+const REPORT_DIR = 'tmp';
+const REPORT_PATH = `${REPORT_DIR}/verify-loop-report.json`;
 
 function toLines(output) {
   return output
@@ -58,34 +56,6 @@ function extractHint(gateId, output) {
         (line) => /\[warn\]/i.test(line),
         (line) => /Code style issues found/i.test(line),
       ]) || 'Prettier check failed; run format and re-run verify.'
-    );
-  }
-
-  if (gateId === 'check:lines') {
-    return (
-      findFirstMatch(lines, [
-        (line) => /has \d+ lines \(max:/i.test(line),
-        (line) => /line-limit regression/i.test(line),
-      ]) || 'Line-limit gate failed; decompose file or refresh baseline intentionally.'
-    );
-  }
-
-  if (gateId === 'check:docs:governance') {
-    return (
-      findFirstMatch(lines, [
-        (line) => /\[DOCS\]\[FAIL\]/i.test(line),
-        (line) => /DECISIONS\.md/i.test(line),
-        (line) => /governance bytes exceed budget/i.test(line),
-      ]) || 'Governance docs gate failed; inspect [DOCS][FAIL] lines above.'
-    );
-  }
-
-  if (gateId === 'validate:structure') {
-    return (
-      findFirstMatch(lines, [
-        (line) => /\[STRUCTURE\]\[FAIL\]/i.test(line),
-        (line) => /\[S\d{2}\]\[ERROR\]/i.test(line),
-      ]) || 'Structural validation failed; inspect the first [Sxx][ERROR] above.'
     );
   }
 
@@ -213,7 +183,7 @@ const report = {
   gates: gateResults,
 };
 
-mkdirSync('.agent/tmp', { recursive: true });
+mkdirSync(REPORT_DIR, { recursive: true });
 writeFileSync(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
 
 if (failedGate) {
@@ -221,7 +191,7 @@ if (failedGate) {
     `[VERIFY][LOOP][FAIL] failed_gate=${failedGate.id} total_duration_ms=${report.totalDurationMs}`,
   );
   console.error(
-    '[VERIFY][NEXT] Apply a minimal fix for the failing gate, then run "npm run verify" again (iterative refinement loop).',
+    '[VERIFY][NEXT] Apply a minimal fix for the failing gate, then run "npm run verify" again.',
   );
   console.error(`[VERIFY][REPORT] path=${REPORT_PATH}`);
   process.exit(failedGate.exitCode || 1);

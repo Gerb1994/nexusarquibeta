@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
 import type { RollupLog } from 'rollup';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -38,7 +39,55 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'require-corp',
     },
   },
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
+      },
+      manifest: {
+        name: 'NexusArqui',
+        short_name: 'NexusArqui',
+        description: 'Sistema de gestão para escritório de arquitetura',
+        theme_color: '#8B5E3C',
+        background_color: '#F5F2EE',
+        display: 'standalone',
+        orientation: 'landscape',
+        start_url: './',
+        scope: './',
+        icons: [
+          {
+            src: 'app-icon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml',
+            purpose: 'any',
+          },
+        ],
+      },
+    }),
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src/frontend'),
@@ -47,11 +96,9 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // Split third-party libs into stable chunks to reduce initial bundle size.
         manualChunks(id) {
           const normalizedId = normalizeModulePath(id);
 
-          // Keep the largest local feature in its own chunk to avoid bloating the main entry.
           if (isProjectDetailsModule(normalizedId)) {
             return 'project-details';
           }
@@ -60,27 +107,22 @@ export default defineConfig({
             return undefined;
           }
 
-          // Keep React runtime in its own chunk for better browser caching.
           if (isReactCoreModule(normalizedId)) {
             return 'react-core';
           }
 
-          // Keep router internals together and decoupled from generic vendors.
           if (isReactRouterModule(normalizedId)) {
             return 'react-router';
           }
 
-          // Isolate gantt bundle because it is large and route-specific.
           if (normalizedId.includes('/gantt-task-react/')) {
             return 'gantt';
           }
 
-          // Separate charting libs from the main app entry.
           if (normalizedId.includes('/recharts/')) {
             return 'charts';
           }
 
-          // Split document stack to prevent a single oversized chunk.
           if (normalizedId.includes('/docx/')) {
             return 'docx';
           }
@@ -105,11 +147,9 @@ export default defineConfig({
         },
       },
       onwarn(warning, defaultHandler) {
-        // Suppress known false-positive PURE annotation warnings from dependencies only.
         if (warning.code === 'INVALID_ANNOTATION' && isNodeModulesWarning(warning)) {
           return;
         }
-
         defaultHandler(warning);
       },
     },

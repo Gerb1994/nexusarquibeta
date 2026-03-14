@@ -1,4 +1,4 @@
-export { CardShell } from './CardShell';
+export { CardShell } from '../ui/CardShell';
 export { FinanceLineChart } from './FinanceLineChart';
 export { SectionTitle } from './SectionTitle';
 export { KPICard } from './KPICard';

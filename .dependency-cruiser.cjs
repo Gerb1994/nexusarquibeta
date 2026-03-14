@@ -25,7 +25,6 @@ module.exports = {
           '\\.d\\.ts$',
           '\\.test\\.(ts|tsx)$',
           'setup\\.ts$',
-          'src/services/infrastructure/storageService\\.ts$',
         ],
       },
       to: {},
