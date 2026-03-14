@@ -17,7 +17,7 @@ import type {
 } from '../../types';
 import { formatCurrency, formatYAxisTick } from '../../utils/formatters';
 import { XIcon } from '../ui';
-import { CardShell } from './CardShell';
+import { CardShell } from '../ui/CardShell';
 import { SectionTitle } from './SectionTitle';
 
 type FinanceLineChartProps = {

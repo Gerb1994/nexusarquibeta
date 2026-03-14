@@ -1,5 +1,5 @@
 import React from 'react';
-import { CardShell } from './CardShell';
+import { CardShell } from '../ui/CardShell';
 
 interface KPICardProps {
   title: string;

@@ -8,7 +8,7 @@ import {
 } from '@/services/financeService';
 import type { EmergencyFund } from '@/types';
 import { formatCurrency } from '@/utils/formatters';
-import { CardShell } from './CardShell';
+import { CardShell } from '../ui/CardShell';
 import { EmergencyFundEditModal } from './EmergencyFundEditModal';
 
 interface EmergencyFundCardProps {
